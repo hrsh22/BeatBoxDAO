@@ -10,9 +10,10 @@ contract BeatBoxLabel is DataDAO {
 
     mapping(bytes => mapping(address => uint256)) public fundings;
     mapping(bytes => uint64) public dealClient;
+    mapping(bytes => uint256) public dealStorageFees;
 
     constructor(address[] memory admins, address _labelNFT) DataDAO(admins) {
-        membershipNFT = IERC721(_labelNFT);
+        labelNFT = IERC721(_labelNFT);
     }
 
     /// @dev Function to allow simgers to join the DAO
@@ -39,10 +40,11 @@ contract BeatBoxLabel is DataDAO {
 
     /// @dev Activates the deal
     /// @param _networkDealID: Deal ID generated after the deal is created on Filecoin Network 
-    function activateMusicDealBySP(uint64 _networkDealID) public {
+    function activateMusicDealBySP(bytes memory _cidraw, uint64 _networkDealID, uint256 _dealStorageFees) public {
         uint64 client = activateDeal(_networkDealID);
         MarketTypes.GetDealDataCommitmentReturn memory commitmentRet = MarketAPI.getDealDataCommitment(MarketTypes.GetDealDataCommitmentParams({id: _networkDealID}));
         dealClient[commitmentRet.data] = client;
+        dealStorageFees[_cidraw] = _dealStorageFees;
     }
 
     /// @dev Once the deal is expired the SP can withdraw the rewards
